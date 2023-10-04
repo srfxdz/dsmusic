@@ -10,6 +10,7 @@ from .queue import Queue
 
 @app_commands.guild_only()
 class Music(commands.Cog):
+    # TODO: the queue is shared between guilds
     # Create queue
     queue = Queue()
 
@@ -70,6 +71,42 @@ class Music(commands.Cog):
 
         if vc.current is None or (vc.current is not None and vc.paused is True):
             await vc.play(self.queue.next(), replace=True)
+
+    @app_commands.command(name="repeat", description="Repeat the same song")
+    async def repeat(self, interaction: discord.Interaction):
+        # noinspection PyTypeChecker
+        resp: discord.InteractionResponse = interaction.response
+
+        status = self.queue.toggle_repeat()
+
+        if status:
+            await resp.send_message("🔂 Enabled repeat")
+        else:
+            await resp.send_message("➡️ Disabled repeat")
+
+    @app_commands.command(name="loop", description="Loop over the queue")
+    async def loop(self, interaction: discord.Interaction):
+        # noinspection PyTypeChecker
+        resp: discord.InteractionResponse = interaction.response
+
+        status = self.queue.toggle_loop()
+
+        if status:
+            await resp.send_message("🔁 Enabled loop")
+        else:
+            await resp.send_message("➡️ Disabled loop")
+
+    @app_commands.command(name="shuffle", description="Shuffle the queue")
+    async def shuffle(self, interaction: discord.Interaction):
+        # noinspection PyTypeChecker
+        resp: discord.InteractionResponse = interaction.response
+
+        status = self.queue.toggle_loop()
+
+        if status:
+            await resp.send_message("🔀 Enabled shuffle")
+        else:
+            await resp.send_message("➡️ Disabled shuffle")
 
     @app_commands.command(name="join", description="Join a voice channel")
     @app_commands.describe(channel="A different channel that you want the bot to join")

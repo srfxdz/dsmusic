@@ -103,11 +103,11 @@ class Queue:
         :return: the current status
         """
         if status:
-            self._loop_current = status
+            self._shuffle = status
         else:
-            self._loop_current = not self._loop_current
+            self._shuffle = not self._shuffle
 
-        return self._loop_current
+        return self._shuffle
 
     def _add_to_queue(self, track: Track) -> int:
         """
@@ -174,7 +174,7 @@ class Queue:
 
         track = self._queue.pop(index)
 
-        if self._loop_current:
+        if self._loop_queue:
             self._queue.append(track)
         else:
             self._queue_length -= track.length
