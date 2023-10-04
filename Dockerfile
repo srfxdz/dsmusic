@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1 \
     PATH="$PATH:/root/.poetry/bin"
 
 # Change workdir
-WORKDIR /wheels
+WORKDIR /build
 
 # Add support for armhf (raspberry)
 RUN if [ "$(dpkg --print-architecture)" = "armhf" ]; \
@@ -23,9 +23,10 @@ RUN pip install poetry==1.6.1
 COPY pyproject.toml poetry.lock ./
 
 # Use poetry to resolve dependecies
-RUN poetry export -f requirements.txt --output requirements.txt
+RUN mkdir -p /build/wheels && poetry export -f requirements.txt --output /build/wheels/requirements.txt
 # Compile dependencies
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+WORKDIR /build/wheels
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /build/wheels -r /build/wheels/requirements.txt
 
 FROM python:3.11-slim
 
@@ -55,10 +56,10 @@ RUN groupadd -r bot && useradd -d /bot -r -g bot bot \
 USER bot
 
 # Copy wheels
-COPY --from=builder /wheels /bot/wheels
+COPY --from=builder /build/wheels /bot/wheels
 
 # install project dependecies
-RUN pip install --no-cache /wheels/*
+RUN pip install --find-links /bot/wheels -r /bot/wheels/requirements.txt
 
 # Copy project
 COPY --chown=bot:bot dsmusic/ /bot/dsmusic/
