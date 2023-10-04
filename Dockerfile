@@ -25,7 +25,7 @@ RUN if [ "$(dpkg --print-architecture)" = "armhf" ] || [ "$(dpkg --print-archite
 
 # Setting up proper permissions:
 RUN groupadd -r bot && useradd -d /bot -r -g bot bot \
-    && chown bot:bot -R /bot
+    && mkdir -p /bot && chown bot:bot -R /bot
 
 # Change workdir
 WORKDIR /bot
