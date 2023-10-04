@@ -12,10 +12,6 @@ ENV PYTHONUNBUFFERED=1 \
 # Change workdir
 WORKDIR /build
 
-# Add support for armhf (raspberry)
-RUN if [ "$(dpkg --print-architecture)" = "armhf" ]; \
-    then export PIP_INDEX_URL="https://www.piwheels.org/simple/"; fi
-
 # Install powrt
 RUN pip install poetry==1.6.1
 
