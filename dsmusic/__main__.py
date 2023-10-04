@@ -1,5 +1,6 @@
-import discord
 import os
+
+import discord
 
 from .client import Client
 
@@ -9,7 +10,6 @@ except ImportError:
     pass
 else:
     uvloop.install()
-
 
 intents = discord.Intents(131)
 

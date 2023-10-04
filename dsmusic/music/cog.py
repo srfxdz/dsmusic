@@ -1,28 +1,24 @@
-import discord
 import asyncio
-import mafic
 
+import discord
+import mafic
 from discord import app_commands
 from discord.ext import commands
 
-from .queue import Queue
+from .player import LavalinkPlayer
 
 
 @app_commands.guild_only()
 class Music(commands.Cog):
-    # TODO: the queue is shared between guilds
-    # Create queue
-    queue = Queue()
-
     def __init__(self, bot: discord.Client):
         self.bot = bot
 
     @commands.Cog.listener(name="on_track_end")
     @commands.Cog.listener(name="on_track_stuck")
     async def on_track_end(self, event: mafic.TrackEndEvent | mafic.TrackStuckEvent):
-        player: mafic.Player = event.player
+        player: LavalinkPlayer = event.player
 
-        track = self.queue.next()
+        track = player.queue.next()
 
         if track:
             return await player.play(track, replace=True)
@@ -51,13 +47,13 @@ class Music(commands.Cog):
         resp: discord.InteractionResponse = interaction.response
 
         if interaction.guild.voice_client is None:
-            vc: mafic.Player = await interaction.user.voice.channel.connect(self_deaf=True, cls=mafic.Player)
+            vc: LavalinkPlayer = await interaction.user.voice.channel.connect(self_deaf=True, cls=LavalinkPlayer)
         else:
             if interaction.guild.voice_client.channel != interaction.user.voice.channel:
                 return await resp.send_message("⚠️ Already on a different channel", ephemeral=True)
             else:
                 # noinspection PyTypeChecker
-                vc: mafic.Player = interaction.guild.voice_client
+                vc: LavalinkPlayer = interaction.guild.voice_client
 
         await resp.defer()
 
@@ -66,20 +62,22 @@ class Music(commands.Cog):
         if tracks is None:
             return await interaction.followup.send("⚠️ No song found", ephemeral=True)
         else:
-            embed = self.queue.add(tracks)
+            embed = vc.queue.add(tracks)
             if embed is None:
                 return await interaction.followup.send("⚠️ Could not add the song to the queue", ephemeral=True)
             await interaction.followup.send("✅ Added to the queue", embed=embed)
 
         if vc.current is None or (vc.current is not None and vc.paused is True):
-            await vc.play(self.queue.next(), replace=True)
+            await vc.play(vc.queue.next(), replace=True)
 
     @app_commands.command(name="repeat", description="Repeat the same song")
     async def repeat(self, interaction: discord.Interaction):
         # noinspection PyTypeChecker
         resp: discord.InteractionResponse = interaction.response
+        # noinspection PyTypeChecker
+        vc: LavalinkPlayer = interaction.guild.voice_client
 
-        status = self.queue.toggle_repeat()
+        status = vc.queue.toggle_repeat()
 
         if status:
             await resp.send_message("🔂 Enabled repeat")
@@ -90,8 +88,10 @@ class Music(commands.Cog):
     async def loop(self, interaction: discord.Interaction):
         # noinspection PyTypeChecker
         resp: discord.InteractionResponse = interaction.response
+        # noinspection PyTypeChecker
+        vc: LavalinkPlayer = interaction.guild.voice_client
 
-        status = self.queue.toggle_loop()
+        status = vc.queue.toggle_loop()
 
         if status:
             await resp.send_message("🔁 Enabled loop")
@@ -102,8 +102,10 @@ class Music(commands.Cog):
     async def shuffle(self, interaction: discord.Interaction):
         # noinspection PyTypeChecker
         resp: discord.InteractionResponse = interaction.response
+        # noinspection PyTypeChecker
+        vc: LavalinkPlayer = interaction.guild.voice_client
 
-        status = self.queue.toggle_shuffle()
+        status = vc.queue.toggle_shuffle()
 
         if status:
             await resp.send_message("🔀 Enabled shuffle")
@@ -134,7 +136,7 @@ class Music(commands.Cog):
             except AttributeError:
                 return await resp.send_message("❌ You are not in a voice channel", ephemeral=True)
 
-        voice_client: mafic.Player | None = interaction.guild.voice_client
+        voice_client: LavalinkPlayer | None = interaction.guild.voice_client
 
         if voice_client:
             if voice_client.channel == channel:
@@ -144,7 +146,7 @@ class Music(commands.Cog):
         else:
             try:
                 await resp.send_message(f"✅ Connecting to {channel.mention}", suppress_embeds=True)
-                await channel.connect(self_deaf=True, cls=mafic.Player, timeout=10)
+                await channel.connect(self_deaf=True, cls=LavalinkPlayer, timeout=10)
             except (discord.ClientException, asyncio.TimeoutError):
                 return await resp.send_message("❌ Could not connect to your voice channel", ephemeral=True)
 
@@ -152,7 +154,7 @@ class Music(commands.Cog):
     async def disconnect(self, interaction: discord.Interaction):
         # noinspection PyTypeChecker
         resp: discord.InteractionResponse = interaction.response
-        voice_client: mafic.Player | None = interaction.guild.voice_client
+        voice_client: LavalinkPlayer | None = interaction.guild.voice_client
 
         if voice_client:
             await voice_client.disconnect()

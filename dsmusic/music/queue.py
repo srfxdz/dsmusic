@@ -1,7 +1,7 @@
+from random import randint
 from typing import Optional
 
 import discord
-from random import randint
 from mafic import Track, Playlist
 
 __all__ = [
@@ -63,6 +63,7 @@ def parse_seconds(seconds: int) -> str:
 
 
 class Queue:
+    _current: Track | None = None
     _queue: list[Track] = []
     _queue_length: int = 0
 
@@ -162,10 +163,11 @@ class Queue:
         :return: a Track object
         """
         if len(self._queue) == 0:
+            _current = None
             return None
 
         if self._loop_current:
-            return self._queue[0]
+            return self._current
 
         if self._shuffle:
             index = randint(0, len(self._queue))
@@ -179,4 +181,5 @@ class Queue:
         else:
             self._queue_length -= track.length
 
+        _current = Track
         return track

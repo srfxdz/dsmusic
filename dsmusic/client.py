@@ -1,18 +1,16 @@
-import os
 import json
-import discord
-import mafic
 import logging
-
-from discord import app_commands
-from discord.ext import commands
+import os
 from os import getenv
 
+import discord
+import mafic
+from discord import app_commands
+from discord.ext import commands
 
 __all__ = [
     "Client"
 ]
-
 
 logger = logging.getLogger('discord.dsbot')
 
