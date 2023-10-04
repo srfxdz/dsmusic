@@ -1,0 +1,15 @@
+.github/
+config/
+
+__pycache__/
+.git/
+.pytest_cache/
+.run/
+
+.idea/
+.vscode/
+.vs/
+
+poetry.lock
+pyproject.toml
+.gitignore
