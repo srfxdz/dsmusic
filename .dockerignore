@@ -10,6 +10,4 @@ __pycache__/
 .vs/
 
 config/lavalink.json
-poetry.lock
-pyproject.toml
 .gitignore
