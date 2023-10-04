@@ -36,8 +36,14 @@ class Client(commands.Bot):
     async def add_nodes(self):
         """Add and connect to lavalink nodes"""
         logger.info("Adding lavalink nodes")
-        with open("config/lavalink.json") as f:
-            data = json.load(f)
+        if os.path.exists("config/lavalink.json"):
+            with open("config/lavalink.json") as f:
+                data = json.load(f)
+        else:
+            with open("config/lavalink.json", "w") as f:
+                f.write("[]")
+            logger.error("Lavalink config not available")
+            return
 
         for node_info in data:
             try:

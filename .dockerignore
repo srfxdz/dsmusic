@@ -1,5 +1,4 @@
 .github/
-config/
 
 __pycache__/
 .git/
@@ -10,6 +9,7 @@ __pycache__/
 .vscode/
 .vs/
 
+config/lavalink.json
 poetry.lock
 pyproject.toml
 .gitignore

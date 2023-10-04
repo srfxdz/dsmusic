@@ -37,13 +37,13 @@ jobs:
         with:
           platforms: ${{ env.PLATFORMS }}
 
-      - name: Log into Private Registry
+      - name: Log into ghcr.io
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
-          registry: ${{ secrets.REG_URL }}
-          username: ${{ secrets.REG_USERNAME }}
-          password: ${{ secrets.REG_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -53,7 +53,6 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository }}
-            ${{ secrets.REG_URL }}/${{ github.event.repository.name }}
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
