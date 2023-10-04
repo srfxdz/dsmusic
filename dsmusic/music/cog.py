@@ -59,15 +59,17 @@ class Music(commands.Cog):
                 # noinspection PyTypeChecker
                 vc: mafic.Player = interaction.guild.voice_client
 
+        await resp.defer()
+
         tracks = await vc.fetch_tracks(query)
 
         if tracks is None:
-            return await resp.send_message("⚠️ No song found", ephemeral=True)
+            return await interaction.followup.send("⚠️ No song found", ephemeral=True)
         else:
             embed = self.queue.add(tracks)
             if embed is None:
-                return await resp.send_message("⚠️ Could not add the song to the queue", ephemeral=True)
-            await resp.send_message("✅ Added to the queue", embed=embed)
+                return await interaction.followup.send("⚠️ Could not add the song to the queue", ephemeral=True)
+            await interaction.followup.send("✅ Added to the queue", embed=embed)
 
         if vc.current is None or (vc.current is not None and vc.paused is True):
             await vc.play(self.queue.next(), replace=True)
@@ -101,7 +103,7 @@ class Music(commands.Cog):
         # noinspection PyTypeChecker
         resp: discord.InteractionResponse = interaction.response
 
-        status = self.queue.toggle_loop()
+        status = self.queue.toggle_shuffle()
 
         if status:
             await resp.send_message("🔀 Enabled shuffle")
