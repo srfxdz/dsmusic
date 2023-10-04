@@ -65,6 +65,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: ${{ env.PLATFORMS }}
-          build-args: |
-            TOKEN=${{ secrets.DS_TOKEN }}
-            GUILD_ID=${{ secrets.GUILD_ID }}
+          #build-args: |
+          #  TOKEN=${{ secrets.DS_TOKEN }}
+          #  GUILD_ID=${{ secrets.GUILD_ID }}
