@@ -9,5 +9,5 @@ __pycache__/
 .vscode/
 .vs/
 
-config/lavalink.json
+config/
 .gitignore

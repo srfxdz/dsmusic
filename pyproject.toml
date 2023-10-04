@@ -1,13 +1,24 @@
 [tool.poetry]
 name = "dsmusic"
-version = "0.1.0"
-description = ""
+version = "0.2.0"
+description = "A simple music bot"
+license = "MIT"
 authors = ["John Toniutti <john.toniutti@gmail.com>"]
 readme = "README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Framework :: aiohttp",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Communications :: Chat",
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 discord-py = "^2.3.2"
+uvloop = { version = "^0.17", markers = "sys_platform == 'linux'" }
 mafic = "^2.9.3"
 
 

@@ -1,7 +1,5 @@
 # The builder image, used to build the virtual environment
-FROM python:3.12 as builder
-
-RUN pip install poetry==1.6.1
+FROM python:3.11 as builder
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -16,10 +14,14 @@ WORKDIR /wheels
 
 COPY pyproject.toml poetry.lock ./
 
+RUN if [ "$(dpkg --print-architecture)" = "armhf" ]; \
+    then export PIP_INDEX_URL="https://www.piwheels.org/simple/"; fi
+
+RUN pip install poetry==1.6.1
 RUN poetry export -f requirements.txt --output requirements.txt
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 ARG TOKEN="discord_token"
 ARG GUILD_ID="0"
