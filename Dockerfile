@@ -1,4 +1,4 @@
-FROM python:3.11 as builder
+FROM python:3.11-bookworm as builder
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -28,7 +28,7 @@ RUN mkdir -p /build/wheels && poetry export -f requirements.txt --output /build/
 WORKDIR /build/wheels
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /build/wheels -r /build/wheels/requirements.txt
 
-FROM python:3.11-slim
+FROM python:3.11-bookworm-slim
 
 # Accept secrets as arguments
 ARG TOKEN="discord_token"

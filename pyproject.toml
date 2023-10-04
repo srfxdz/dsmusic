@@ -19,6 +19,9 @@ classifiers = [
 python = "^3.11"
 discord-py = "^2.3.2"
 uvloop = { version = "^0.17", markers = "sys_platform == 'linux'" }
+orjson = "^3.8.0"
+aiodns = "^3.0.0"
+brotli = "^1.1.0"
 mafic = "^2.9.3"
 
 
