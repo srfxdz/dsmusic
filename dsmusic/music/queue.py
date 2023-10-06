@@ -183,3 +183,16 @@ class Queue:
 
         _current = Track
         return track
+
+    def clean(self) -> int:
+        """
+        Reset the queue removing all the elements
+        :return: the number of elements removed
+        """
+        size = len(self._queue)
+        del self._queue
+        self._queue = []
+        self._queue_length = 0
+        self._current = None
+
+        return size

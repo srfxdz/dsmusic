@@ -3,6 +3,7 @@ import asyncio
 import discord
 import mafic
 from discord import app_commands
+from discord.channel import VocalGuildChannel
 from discord.ext import commands
 
 from .player import LavalinkPlayer
@@ -23,8 +24,8 @@ class Music(commands.Cog):
         if track:
             return await player.play(track, replace=True)
 
-    @commands.Cog.listener()
-    async def on_voice_state_update(self, mb: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    @commands.Cog.listener("on_voice_state_update")
+    async def auto_disconnect(self, mb: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
         """Disconnect bot if it's the only one in the voice channel"""
         if mb.guild.voice_client is None:
             return
@@ -32,11 +33,34 @@ class Music(commands.Cog):
             if len(before.channel.members) == 1:
                 await mb.guild.voice_client.disconnect(force=True)
 
+    @commands.Cog.listener("on_voice_state_update")
+    async def cleanup_after_disconnect(self, mb: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+        if mb == self.bot.user:
+            if isinstance(before.channel, VocalGuildChannel) and after.channel is None:
+                # noinspection PyTypeChecker
+                vc: LavalinkPlayer = mb.guild.voice_client
+                if vc is not None:
+                    vc.clean_queue()
+                    await vc.disconnect(force=True)
+                else:
+                    return
+
     @app_commands.command(name="skip", description="Skip the current song")
     @app_commands.checks.cooldown(4, 10, key=lambda i: (i.guild_id, i.user.id))
     async def skip(self, interaction: discord.Interaction):
-        await self.on_track_end()
-        interaction.response.send_message("✅ Skipping current track", ephemeral=True)
+        # noinspection PyTypeChecker
+        resp: discord.InteractionResponse = interaction.response
+        # noinspection PyTypeChecker
+        vc: LavalinkPlayer = interaction.guild.voice_client
+
+        if vc is None:
+            return await resp.send_message("❌ Not connected to a voice channel", ephemeral=True)
+
+        track = vc.queue.next()
+        await resp.send_message("✅ Skipping current track", ephemeral=True)
+
+        if track:
+            return await vc.play(track, replace=True)
 
     @app_commands.command(name="play", description="Play a song from YouTube")
     @app_commands.checks.cooldown(3, 10, key=lambda i: (i.guild_id, i.user.id))
@@ -46,16 +70,17 @@ class Music(commands.Cog):
         # noinspection PyTypeChecker
         resp: discord.InteractionResponse = interaction.response
 
+        await resp.defer()
+
         if interaction.guild.voice_client is None:
             vc: LavalinkPlayer = await interaction.user.voice.channel.connect(self_deaf=True, cls=LavalinkPlayer)
+            vc.is_connected()
         else:
             if interaction.guild.voice_client.channel != interaction.user.voice.channel:
                 return await resp.send_message("⚠️ Already on a different channel", ephemeral=True)
             else:
                 # noinspection PyTypeChecker
                 vc: LavalinkPlayer = interaction.guild.voice_client
-
-        await resp.defer()
 
         tracks = await vc.fetch_tracks(query)
 
@@ -77,6 +102,9 @@ class Music(commands.Cog):
         # noinspection PyTypeChecker
         vc: LavalinkPlayer = interaction.guild.voice_client
 
+        if vc is None:
+            return await resp.send_message("❌ Not connected to a voice channel", ephemeral=True)
+
         status = vc.queue.toggle_repeat()
 
         if status:
@@ -91,6 +119,9 @@ class Music(commands.Cog):
         # noinspection PyTypeChecker
         vc: LavalinkPlayer = interaction.guild.voice_client
 
+        if vc is None:
+            return await resp.send_message("❌ Not connected to a voice channel", ephemeral=True)
+
         status = vc.queue.toggle_loop()
 
         if status:
@@ -104,6 +135,9 @@ class Music(commands.Cog):
         resp: discord.InteractionResponse = interaction.response
         # noinspection PyTypeChecker
         vc: LavalinkPlayer = interaction.guild.voice_client
+
+        if vc is None:
+            return await resp.send_message("❌ Not connected to a voice channel", ephemeral=True)
 
         status = vc.queue.toggle_shuffle()
 
@@ -161,6 +195,18 @@ class Music(commands.Cog):
             return await resp.send_message(f"✅ Disconnected", suppress_embeds=True)
         else:
             return await resp.send_message("✴️ Already disconnected", ephemeral=True)
+
+    @app_commands.command(name="reset", description="Reset the queue")
+    async def reset(self, interaction: discord.Interaction):
+        # noinspection PyTypeChecker
+        resp: discord.InteractionResponse = interaction.response
+        voice_client: LavalinkPlayer | None = interaction.guild.voice_client
+
+        if voice_client:
+            n = voice_client.queue.clean()
+            return await resp.send_message(f"✅ Removed {n} track(s)", suppress_embeds=True)
+        else:
+            return await resp.send_message("❌ Not connected to a voice channel", ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:

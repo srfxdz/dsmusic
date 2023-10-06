@@ -14,3 +14,11 @@ class LavalinkPlayer(mafic.Player, Generic[ClientT]):
         super().__init__(*args, **kwargs)
 
         self.queue = Queue()
+
+    def clean_queue(self):
+        """
+        Delete queue
+        :return: None
+        """
+        del self.queue
+        self.queue = Queue()
