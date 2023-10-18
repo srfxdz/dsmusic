@@ -42,6 +42,7 @@ class Music(commands.Cog):
                 if vc is not None:
                     vc.clean_queue()
                     await vc.disconnect(force=True)
+                    del vc
                 else:
                     return
 
@@ -61,6 +62,8 @@ class Music(commands.Cog):
 
         if track:
             return await vc.play(track, replace=True)
+        else:
+            return await vc.stop()
 
     @app_commands.command(name="play", description="Play a song from YouTube")
     @app_commands.checks.cooldown(3, 10, key=lambda i: (i.guild_id, i.user.id))
