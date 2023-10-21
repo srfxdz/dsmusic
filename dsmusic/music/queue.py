@@ -118,11 +118,11 @@ class Queue:
         """
         track_length = track.length // 1000
 
-        if track_length > 3600:
+        if track_length > 3600:  # max 1 hour
             return -2
-        elif self._queue_length + track_length >= 7200:
+        elif self._queue_length + track_length >= 8200:  # total max 132 minutes
             return -1
-        elif len(self._queue) > 36:
+        elif len(self._queue) > 48:  # max 48 songs
             return 0
         else:
             self._queue_length += track_length

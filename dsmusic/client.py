@@ -56,6 +56,10 @@ class Client(commands.Bot):
                 logger.error(e)
                 pass
 
+        if len(self.pool.nodes) == 0:
+            logger.error("No nodes connected")
+            return
+
         # Load extensions
         logger.info("Loading extensions")
         await self.load_extension("dsmusic.music.cog")

@@ -21,12 +21,11 @@ client = Client(
     activity=discord.CustomActivity(name="We Live. We Love. We Lie."),
     status=discord.Status.online,
     mentions=discord.AllowedMentions.none(),
-    help_command=None,
-    owner_id=333947212520357889,
+    help_command=None
 )
 
-oauth_url = discord.utils.oauth_url(839827510761488404, guild=discord.Object(681419392637993013))
-print(oauth_url)
+oauth_url = discord.utils.oauth_url(839827510761488404, guild=discord.Object(os.getenv("GUILD_ID")))
+print(f"Bot URL: {oauth_url}")
 
 token = os.getenv("TOKEN")
 
