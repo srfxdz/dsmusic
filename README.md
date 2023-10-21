@@ -1,5 +1,9 @@
 # dsmusic
 
+## Description
+
+This is a very simple discord bot using slash commands to play music using lavalink on your guild channels. 
+
 ## Setup
 
 ### Docker
