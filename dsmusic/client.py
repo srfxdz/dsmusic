@@ -12,6 +12,8 @@ __all__ = [
     "Client"
 ]
 
+from mafic import NodeAlreadyConnected
+
 logger = logging.getLogger('discord.dsbot')
 
 
@@ -20,7 +22,7 @@ class Client(commands.Bot):
         super().__init__(*args, **kwargs)
 
         # Add nodes
-        self.pool = mafic.NodePool(self, default_strategies=[mafic.Strategy.USAGE, mafic.Strategy.RANDOM])
+        self.pool = mafic.NodePool(self)
 
         # App commands
         self.guild_id = discord.Object(id=getenv("GUILD_ID", 0))
@@ -34,9 +36,12 @@ class Client(commands.Bot):
     async def add_nodes(self):
         """Add and connect to lavalink nodes"""
         logger.info("Adding lavalink nodes")
-        if os.path.exists("config/lavalink.json"):
+        if os.path.exists("config/lavalink.json") and os.path.isfile("config/lavalink.json"):
             with open("config/lavalink.json") as f:
                 data = json.load(f)
+        elif os.path.isdir("config/lavalink.json"):
+            logger.error("Lavalink config is a directory")
+            return
         else:
             with open("config/lavalink.json", "w") as f:
                 f.write("[]")
@@ -45,13 +50,21 @@ class Client(commands.Bot):
 
         for node_info in data:
             try:
-                await self.pool.create_node(
+                node = await self.pool.create_node(
                     host=node_info["uri"],
                     port=node_info["port"],
                     label=f"CONFIG-{data.index(node_info)}",
                     password=node_info["password"],
                     secure=False,
                 )
+                await node.connect()
+                logger.info(f"Node {node_info['uri']} added")
+            except NodeAlreadyConnected:
+                pass
+            except TimeoutError:
+                logger.error(f"Node {node_info['uri']} timed out")
+            except RuntimeError:
+                logger.error(f"Node {node_info['uri']} failed")
             except Exception as e:
                 logger.error(e)
                 pass
@@ -77,5 +90,12 @@ class Client(commands.Bot):
                 f"You are currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!", ephemeral=True)
         elif isinstance(error, app_commands.MissingPermissions):
             return await interaction.response.send_message(f"You are not authorized to use that", ephemeral=True)
+        elif isinstance(error, NoNodesAvailable):
+            for node in self.pool.nodes:
+                try:
+                    await node.connect()
+                except NodeAlreadyConnected:
+                    pass
+            return await interaction.response.send_message("No nodes available", ephemeral=True)
         else:
             logger.error(error)

@@ -1,4 +1,4 @@
-FROM python:3.11-bookworm as builder
+FROM python:3.12-bookworm as builder
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -13,7 +13,7 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /build
 
 # Install powrt
-RUN pip install poetry==1.6.1
+RUN pip install poetry
 
 # Add poetry files
 COPY pyproject.toml poetry.lock ./
@@ -24,7 +24,7 @@ RUN mkdir -p /build/wheels && poetry export -f requirements.txt --output /build/
 WORKDIR /build/wheels
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /build/wheels -r /build/wheels/requirements.txt
 
-FROM python:3.11-slim-bookworm
+FROM python:3.12-slim-bookworm
 
 # Accept secrets as arguments
 ARG TOKEN="discord_token"
