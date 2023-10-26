@@ -5,6 +5,7 @@ from os import getenv
 
 import discord
 import mafic
+from mafic import NodeAlreadyConnected
 from discord import app_commands
 from discord.ext import commands
 
@@ -12,7 +13,6 @@ __all__ = [
     "Client"
 ]
 
-from mafic import NodeAlreadyConnected
 
 logger = logging.getLogger('discord.dsbot')
 
@@ -90,12 +90,5 @@ class Client(commands.Bot):
                 f"You are currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!", ephemeral=True)
         elif isinstance(error, app_commands.MissingPermissions):
             return await interaction.response.send_message(f"You are not authorized to use that", ephemeral=True)
-        elif isinstance(error, NoNodesAvailable):
-            for node in self.pool.nodes:
-                try:
-                    await node.connect()
-                except NodeAlreadyConnected:
-                    pass
-            return await interaction.response.send_message("No nodes available", ephemeral=True)
         else:
             logger.error(error)
