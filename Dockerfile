@@ -60,5 +60,8 @@ RUN pip install --find-links /bot/wheels -r /bot/wheels/requirements.txt
 # Copy project
 COPY --chown=bot:bot dsmusic/ /bot/dsmusic/
 
+VOLUME ["/bot/dsmusic/config"]
+VOLUME ["/bot/dsmusic/data"]
+
 # Commands to execute inside container
 CMD ["python", "-O", "-B", "-m", "dsmusic"]

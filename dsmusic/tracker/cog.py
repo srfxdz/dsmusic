@@ -11,7 +11,7 @@ from discord.ext import commands
 class Tracker(commands.Cog):
     tracking: dict[str, str] = {}
 
-    def __init__(self, bot: discord.Client, data_file: str = "config/tracker.json"):
+    def __init__(self, bot: discord.Client, data_file: str = "data/tracker.json"):
         self.bot = bot
 
         if os.path.exists(data_file) and os.path.isfile(data_file):

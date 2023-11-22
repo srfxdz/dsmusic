@@ -32,7 +32,7 @@ class Client(commands.Bot):
     async def setup_hook(self):
         await self.load_extension("dsmusic.tracker.cog")
         # Add lavalink nodes
-        #await self.add_nodes()
+        await self.add_nodes()
 
         # This copies the global commands over to your guild.
         logger.info("Syncing command tree")
