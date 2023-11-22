@@ -24,7 +24,7 @@ class Tracker(commands.Cog):
         if before.status != after.status and after.status == discord.Status.online:
             if str(after.guild.id) in self.tracking:
                 if str(after.id) in self.tracking[str(after.guild.id)]:
-                    channel = self.bot.get_channel(int(self.tracking[str(after.id)]))
+                    channel = self.bot.get_channel(int(self.tracking[str(after.guild.id)][str(after.id)]))
                     if channel.guild == after.guild:
                         await channel.send(f"{after.mention} is now {after.status}")
 
