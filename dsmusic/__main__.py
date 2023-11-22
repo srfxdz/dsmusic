@@ -11,14 +11,14 @@ except ImportError:
 else:
     uvloop.install()
 
-intents = discord.Intents(131)
+intents = discord.Intents(387)
 
 client = Client(
     intents=intents,
     command_prefix="!",
     max_messages=None,
-    assume_unsync_clock=True,
-    activity=discord.CustomActivity(name="We Live. We Love. We Lie."),
+    assume_unsync_clock=False,
+    activity=discord.CustomActivity(name="Get Joshed."),
     status=discord.Status.online,
     mentions=discord.AllowedMentions.none(),
     help_command=None

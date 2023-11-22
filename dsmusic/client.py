@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -29,9 +30,14 @@ class Client(commands.Bot):
         self.tree.on_error = self.on_tree_error
 
     async def setup_hook(self):
+        await self.load_extension("dsmusic.tracker.cog")
         # Add lavalink nodes
-        task = self.loop.create_task(self.add_nodes())
-        task.add_done_callback(lambda _: logger.info("Nodes connected"))
+        #await self.add_nodes()
+
+        # This copies the global commands over to your guild.
+        logger.info("Syncing command tree")
+        self.tree.copy_global_to(guild=self.guild_id)
+        await self.tree.sync(guild=self.guild_id)
 
     async def add_nodes(self):
         """Add and connect to lavalink nodes"""
@@ -56,6 +62,7 @@ class Client(commands.Bot):
                     label=f"CONFIG-{data.index(node_info)}",
                     password=node_info["password"],
                     secure=False,
+                    timeout=5,
                 )
                 await node.connect()
                 logger.info(f"Node {node_info['uri']} added")
@@ -74,13 +81,7 @@ class Client(commands.Bot):
             return
 
         # Load extensions
-        logger.info("Loading extensions")
         await self.load_extension("dsmusic.music.cog")
-
-        # This copies the global commands over to your guild.
-        logger.info("Syncing command tree")
-        self.tree.copy_global_to(guild=self.guild_id)
-        await self.tree.sync(guild=self.guild_id)
 
     # noinspection PyUnresolvedReferences
     @staticmethod
