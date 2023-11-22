@@ -63,6 +63,7 @@ class Client(commands.Bot):
                     label=f"CONFIG-{data.index(node_info)}",
                     password=node_info["password"],
                     secure=False,
+                    timeout=10,
                 )
                 await node.connect()
                 logger.info(f"Node {node_info['uri']} added")
