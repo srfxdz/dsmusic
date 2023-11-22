@@ -31,6 +31,7 @@ class Client(commands.Bot):
 
     async def setup_hook(self):
         await self.load_extension("dsmusic.tracker.cog")
+        logger.info("Loaded tracker cog")
         # Add lavalink nodes
         await self.add_nodes()
 

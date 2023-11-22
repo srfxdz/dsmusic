@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dsmusic"
-version = "0.5.2"
+version = "0.5.3"
 description = "A simple music bot"
 license = "MIT"
 authors = ["John Toniutti <john.toniutti@gmail.com>"]
@@ -19,12 +19,12 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.11"
 discord-py = "^2.3.2"
-aiohttp = { version = "^3.9.0b0", allow-prereleases = true }
+aiohttp = "^3.9"
 orjson = "^3.9.9"
 aiodns = "^3.1.1"
 brotli = "^1.1.0"
 mafic = "^2.9.3"
-setuptools = "^68.2.2"
+setuptools = "^69"
 
 
 [build-system]
