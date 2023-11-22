@@ -30,10 +30,13 @@ class Client(commands.Bot):
         self.tree.on_error = self.on_tree_error
 
     async def setup_hook(self):
+        logger.info("Loading extensions")
         await self.load_extension("dsmusic.tracker.cog")
-        logger.info("Loaded tracker cog")
+        await self.load_extension("dsmusic.music.cog")
+        logger.info("Extensions loaded")
+
         # Add lavalink nodes
-        await self.add_nodes()
+        self.loop.create_task(self.add_nodes())
 
         # This copies the global commands over to your guild.
         logger.info("Syncing command tree")
@@ -57,15 +60,14 @@ class Client(commands.Bot):
 
         for node_info in data:
             try:
-                node = await self.pool.create_node(
+                await self.pool.create_node(
                     host=node_info["uri"],
                     port=node_info["port"],
                     label=f"CONFIG-{data.index(node_info)}",
                     password=node_info["password"],
                     secure=False,
-                    timeout=10,
+                    timeout=5,
                 )
-                await node.connect()
                 logger.info(f"Node {node_info['uri']} added")
             except NodeAlreadyConnected:
                 pass
@@ -82,9 +84,6 @@ class Client(commands.Bot):
             return
         else:
             logger.info(f"{len(self.pool.nodes)} nodes connected")
-
-        # Load extensions
-        await self.load_extension("dsmusic.music.cog")
 
     # noinspection PyUnresolvedReferences
     @staticmethod
