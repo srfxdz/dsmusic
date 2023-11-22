@@ -62,7 +62,6 @@ class Client(commands.Bot):
                     label=f"CONFIG-{data.index(node_info)}",
                     password=node_info["password"],
                     secure=False,
-                    timeout=5,
                 )
                 await node.connect()
                 logger.info(f"Node {node_info['uri']} added")
@@ -79,6 +78,8 @@ class Client(commands.Bot):
         if len(self.pool.nodes) == 0:
             logger.error("No nodes connected")
             return
+        else:
+            logger.info(f"{len(self.pool.nodes)} nodes connected")
 
         # Load extensions
         await self.load_extension("dsmusic.music.cog")
