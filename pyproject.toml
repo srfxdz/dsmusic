@@ -23,7 +23,7 @@ aiohttp = { version = "^3.9.1", allow-prereleases = true }
 orjson = "^3.9.9"
 aiodns = "^3.1.1"
 brotli = "^1.1.0"
-mafic = "^2.9.3"
+mafic = "^2.10.0"
 setuptools = "^69.0.2"
 
 
