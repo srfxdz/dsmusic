@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass, field, asdict
 from typing import Any, Literal
 
@@ -6,6 +7,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from yarl import URL
+
+
+logger = logging.getLogger('discord.dsbot.assistant.cog')
 
 
 @dataclass
@@ -153,7 +157,7 @@ class Assistant(commands.Cog):
 
     @app_commands.command(name="ask", description="Ask a question to the assistant")
     @app_commands.checks.cooldown(3, 10, key=lambda i: (i.guild_id, i.user.id))
-    @app_commands.describe(query="The question you want to ask", model="The model to use (use openchat by default)")
+    @app_commands.describe(prompt="The question you want to ask", model="The model to use (use openchat by default)")
     async def unscoped_prompt_command(self, interaction: discord.Interaction, prompt: str, model: str | None = None):
         """Send a prompt to the assistant"""
         # noinspection PyTypeChecker
@@ -167,7 +171,11 @@ class Assistant(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     from os import getenv
-    client_id = getenv("CF_ACCOUNT_ID")
-    api_token = getenv("CF_API_TOKEN")
+    client_id = getenv("CF_ACCOUNT_ID", None)
+    api_token = getenv("CF_API_TOKEN", None)
+
+    if client_id is None or api_token is None:
+        logger.warning("Cloudflare credentials not found, assistant cog will not be loaded")
+        return
 
     await bot.add_cog(Assistant(bot, client_id, api_token, ))

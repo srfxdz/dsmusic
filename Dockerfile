@@ -37,8 +37,8 @@ ENV PYTHONFAULTHANDLER=1 \
 
 ENV DS_TOKEN     "YOUR_DISCORD_TOKEN"     # discord token from the developer portal
 ENV DS_GUILD_ID  "YOUR_GUILD_ID"          # the guild id where the bot will be used
-ENV CF_CLIENT_ID "YOUR_CLIENT_ID"         # cloudflare client id
-ENV CF_TOKEN     "YOUR_CLOUDFLARE_TOKEN"  # cloudflare token
+#ENV CF_CLIENT_ID "YOUR_CLIENT_ID"         # cloudflare client id
+#ENV CF_TOKEN     "YOUR_CLOUDFLARE_TOKEN"  # cloudflare token
 
 # Change workdir
 WORKDIR /bot

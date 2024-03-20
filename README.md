@@ -49,9 +49,4 @@ If you want to install the bot with the optional requirements, you can use [poet
 
 ### Notes
 
-If you don't want to use the Cloudflare integration, you can remove the environment variables and this line
-```python
-await self.load_extension("dsmusic.assistant.cog")
-```
-from [client.py](dsmusic/client.py) file.
-Or just use the `v0.5.9` tag, which doesn't have the Cloudflare integration.
+If you don't want to use the Cloudflare integration, just don't declare the environment variables `CF_TOKEN` and `CF_ACCOUNT_ID`.
