@@ -199,7 +199,7 @@ class Assistant(commands.Cog):
             model = DEFAULT_MODEL
 
         await resp.defer(thinking=True)
-        llm_response = await self.single_scoped_prompt(prompt, model=model)
+        llm_response = await self.unscoped_prompt(prompt, model=model)
 
         return await interaction.followup.send(llm_response.response)
 
