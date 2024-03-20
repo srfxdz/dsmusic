@@ -26,12 +26,6 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /build/wheels -r /build/wheel
 
 FROM python:3.12-slim-bookworm
 
-# Accept secrets as arguments
-ARG TOKEN="discord_token"
-ARG GUILD_ID="0"
-ENV TOKEN $TOKEN
-ENV GUILD_ID $GUILD_ID
-
 ENV PYTHONFAULTHANDLER=1 \
       PYTHONUNBUFFERED=1 \
       PYTHONHASHSEED=random \
@@ -40,6 +34,11 @@ ENV PYTHONFAULTHANDLER=1 \
       PIP_NO_CACHE_DIR=1 \
       PIP_DISABLE_PIP_VERSION_CHECK=1 \
       PIP_DEFAULT_TIMEOUT=100
+
+ENV DS_TOKEN     "YOUR_DISCORD_TOKEN"     # discord token from the developer portal
+ENV DS_GUILD_ID  "YOUR_GUILD_ID"          # the guild id where the bot will be used
+ENV CF_CLIENT_ID "YOUR_CLIENT_ID"         # cloudflare client id
+ENV CF_TOKEN     "YOUR_CLOUDFLARE_TOKEN"  # cloudflare token
 
 # Change workdir
 WORKDIR /bot

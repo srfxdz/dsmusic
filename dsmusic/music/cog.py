@@ -73,19 +73,23 @@ class Music(commands.Cog):
         # noinspection PyTypeChecker
         resp: discord.InteractionResponse = interaction.response
 
-        await resp.defer()
+        await resp.defer(thinking=True)
 
         if interaction.guild.voice_client is None:
             vc: LavalinkPlayer = await interaction.user.voice.channel.connect(self_deaf=True, cls=LavalinkPlayer)
             vc.is_connected()
         else:
             if interaction.guild.voice_client.channel != interaction.user.voice.channel:
-                return await resp.send_message("⚠️ Already on a different channel", ephemeral=True)
+                return await interaction.followup.send("⚠️ Already on a different channel", ephemeral=True)
             else:
                 # noinspection PyTypeChecker
                 vc: LavalinkPlayer = interaction.guild.voice_client
 
-        tracks = await vc.fetch_tracks(query)
+        try:
+            with asyncio.timeout(10):
+                tracks = await vc.fetch_tracks(query)
+        except asyncio.TimeoutError:
+            return await interaction.followup.send("⚠️ Timed out (please, report to the bot owner)", ephemeral=True)
 
         if tracks is None:
             return await interaction.followup.send("⚠️ No song found", ephemeral=True)

@@ -11,23 +11,48 @@ except ImportError:
 else:
     uvloop.install()
 
-intents = discord.Intents(387)
+intents = discord.Intents(
+    guilds=True,
+    members=True,
+    messages=True,
+    voice_states=True,
+    presences=True,
+    message_content=True
+)
+
+permissions = discord.Permissions(
+    send_messages=True,
+    read_messages=True,
+
+    connect=True,
+    speak=True,
+    use_voice_activation=True,
+    use_soundboard=True,
+
+    manage_threads=True,
+    send_messages_in_threads=True,
+
+    attach_files=True,
+    embed_links=True,
+)
 
 client = Client(
     intents=intents,
     command_prefix="!",
-    max_messages=None,
-    assume_unsync_clock=False,
-    activity=discord.CustomActivity(name="Get Joshed."),
+    activity=discord.CustomActivity(name="Gressinbon"),
     status=discord.Status.online,
     mentions=discord.AllowedMentions.none(),
     help_command=None
 )
 
-oauth_url = discord.utils.oauth_url(839827510761488404, guild=discord.Object(os.getenv("GUILD_ID")))
+oauth_url = discord.utils.oauth_url(
+    client_id=839827510761488404,
+    guild=discord.Object(os.getenv("DS_GUILD_ID")),
+    permissions=permissions
+)
 print(f"Bot URL: {oauth_url}")
 
-token = os.getenv("TOKEN")
+token = os.getenv("DS_TOKEN")
 
 if token:
     client.run(token=token)

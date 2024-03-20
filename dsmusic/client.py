@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import os
@@ -6,14 +5,13 @@ from os import getenv
 
 import discord
 import mafic
-from mafic import NodeAlreadyConnected
 from discord import app_commands
 from discord.ext import commands
+from mafic import NodeAlreadyConnected
 
 __all__ = [
     "Client"
 ]
-
 
 logger = logging.getLogger('discord.dsbot')
 
@@ -26,17 +24,19 @@ class Client(commands.Bot):
         self.pool = mafic.NodePool(self)
 
         # App commands
-        self.guild_id = discord.Object(id=getenv("GUILD_ID", 0))
+        self.guild_id = discord.Object(id=getenv("DS_GUILD_ID", 0))
         self.tree.on_error = self.on_tree_error
 
     async def setup_hook(self):
         logger.info("Loading extensions")
         await self.load_extension("dsmusic.tracker.cog")
         await self.load_extension("dsmusic.music.cog")
+        await self.load_extension("dsmusic.assistant.cog")
+
         logger.info("Extensions loaded")
 
         # Add lavalink nodes
-        self.loop.create_task(self.add_nodes())
+        await self.loop.create_task(self.add_nodes())
 
         # This copies the global commands over to your guild.
         logger.info("Syncing command tree")
@@ -81,7 +81,6 @@ class Client(commands.Bot):
 
         if len(self.pool.nodes) == 0:
             logger.error("No nodes connected")
-            return
         else:
             logger.info(f"{len(self.pool.nodes)} nodes connected")
 
@@ -95,3 +94,4 @@ class Client(commands.Bot):
             return await interaction.response.send_message(f"You are not authorized to use that", ephemeral=True)
         else:
             logger.error(error)
+            return await interaction.response.send_message("An error occurred", ephemeral=True)
