@@ -11,13 +11,13 @@ This is a very simple discord bot using slash commands to play music using laval
 The preferred method to run this is with a docker container. To launch it, run the following command:
 
 ```bash
-docker run -d 
-  \ -e DS_TOKEN="DISCORD_TOKEN" 
-  \ -e DS_GUILD_ID="YOUR_GUILD_ID" 
-  \ -e CF_TOKEN="CLOUDFLARE_TOKEN"
-  \ -e CF_ACCOUNT_ID="CLOUDFLARE_ACCOUNT_ID"
-  \ -v $(pwd)/lavalink.json:/bot/config/lavalink.json 
-  \ ghcr.io/jotonedev/dsmusic:latest
+docker run -d \
+   -e DS_TOKEN="DISCORD_TOKEN" \
+   -e DS_GUILD_ID="YOUR_GUILD_ID" \ 
+   -e CF_TOKEN="CLOUDFLARE_TOKEN" \
+   -e CF_ACCOUNT_ID="CLOUDFLARE_ACCOUNT_ID" \
+   -v $(pwd)/lavalink.json:/bot/config/lavalink.json \
+   ghcr.io/jotonedev/dsmusic:latest
 ```
 
 The file lavalink.json must be created using the [template](config/lavalink.example.json) in the repository.
