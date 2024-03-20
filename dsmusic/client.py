@@ -71,7 +71,7 @@ class Client(commands.Bot):
 
         for node_info in data:
             try:
-                async with asyncio.timeout(10):
+                async with asyncio.timeout(20):
                     await self.pool.create_node(
                         host=node_info["uri"],
                         port=node_info["port"],
@@ -83,13 +83,12 @@ class Client(commands.Bot):
                     logger.info(f"Node {node_info['uri']} added")
             except NodeAlreadyConnected:
                 pass
-            except (TimeoutError, asyncio.TimeoutError):
-                logger.error(f"Node {node_info['uri']} timed out")
-            except RuntimeError:
-                logger.error(f"Node {node_info['uri']} failed")
+            except (TimeoutError, asyncio.TimeoutError) as e:
+                logger.error(f"Node {node_info['uri']}:{node_info['port']} timed out. {e}")
+            except RuntimeError as e:
+                logger.error(f"Node {node_info['uri']}:{node_info['port']} failed. {e}")
             except Exception as e:
                 logger.error(e)
-                pass
 
         if len(self.pool.nodes) == 0:
             logger.error("No nodes connected")
