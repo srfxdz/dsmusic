@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -37,15 +38,13 @@ class Client(commands.Bot):
     async def setup_hook(self):
         logger.info("Loading extensions")
         await self.load_extension("dsmusic.tracker.cog")
-
         await self.load_extension("dsmusic.assistant.cog")
 
         if int(os.getenv("DISABLE_LAVALINK", "0")) == 1:
             logger.warning("Lavalink is disabled")
         else:
-            await self.load_extension("dsmusic.music.cog")
-            # Add lavalink nodes
             await self.loop.create_task(self.add_nodes())
+            await self.load_extension("dsmusic.music.cog")
 
         logger.info("Extensions loaded")
 
@@ -57,6 +56,7 @@ class Client(commands.Bot):
     async def add_nodes(self):
         """Add and connect to lavalink nodes"""
         logger.info("Adding lavalink nodes")
+
         if os.path.exists("config/lavalink.json") and os.path.isfile("config/lavalink.json"):
             with open("config/lavalink.json") as f:
                 data = json.load(f)
@@ -71,18 +71,19 @@ class Client(commands.Bot):
 
         for node_info in data:
             try:
-                await self.pool.create_node(
-                    host=node_info["uri"],
-                    port=node_info["port"],
-                    label=f"CONFIG-{data.index(node_info)}",
-                    password=node_info["password"],
-                    secure=False,
-                    timeout=5,
-                )
-                logger.info(f"Node {node_info['uri']} added")
+                with asyncio.timeout(10):
+                    await self.pool.create_node(
+                        host=node_info["uri"],
+                        port=node_info["port"],
+                        label=f"CONFIG-{data.index(node_info)}",
+                        password=node_info["password"],
+                        secure=False,
+                        timeout=5,
+                    )
+                    logger.info(f"Node {node_info['uri']} added")
             except NodeAlreadyConnected:
                 pass
-            except TimeoutError:
+            except (TimeoutError, asyncio.TimeoutError):
                 logger.error(f"Node {node_info['uri']} timed out")
             except RuntimeError:
                 logger.error(f"Node {node_info['uri']} failed")

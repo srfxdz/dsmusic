@@ -205,6 +205,7 @@ class Assistant(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
+    logger.info("Loading assistant cog")
     client_id = getenv("CF_ACCOUNT_ID", None)
     api_token = getenv("CF_TOKEN", None)
 
@@ -213,3 +214,4 @@ async def setup(bot: commands.Bot) -> None:
         return
 
     await bot.add_cog(Assistant(bot, client_id, api_token, ))
+    logger.info("Assistant cog loaded")

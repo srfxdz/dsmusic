@@ -8,6 +8,8 @@ from discord.ext import commands
 
 from .player import LavalinkPlayer
 
+logger = logging.getLogger('discord.dsbot.music.cog')
+
 
 @app_commands.guild_only()
 class Music(commands.Cog):
@@ -217,4 +219,6 @@ class Music(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
+    logger.info("Loading music cog")
     await bot.add_cog(Music(bot))
+    logger.info("Music cog loaded")
