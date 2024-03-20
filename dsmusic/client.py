@@ -16,6 +16,13 @@ __all__ = [
 logger = logging.getLogger('discord.dsbot')
 
 
+async def response_after_error(interaction: discord.Interaction, message: str):
+    try:
+        await interaction.response.send_message(message, ephemeral=True)
+    except discord.errors.InteractionResponded:
+        await interaction.followup.send(message, ephemeral=True)
+
+
 class Client(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,13 +37,17 @@ class Client(commands.Bot):
     async def setup_hook(self):
         logger.info("Loading extensions")
         await self.load_extension("dsmusic.tracker.cog")
-        await self.load_extension("dsmusic.music.cog")
+
         await self.load_extension("dsmusic.assistant.cog")
 
-        logger.info("Extensions loaded")
+        if int(os.getenv("DISABLE_LAVALINK", "0")) == 1:
+            logger.warning("Lavalink is disabled")
+        else:
+            await self.load_extension("dsmusic.music.cog")
+            # Add lavalink nodes
+            await self.loop.create_task(self.add_nodes())
 
-        # Add lavalink nodes
-        await self.loop.create_task(self.add_nodes())
+        logger.info("Extensions loaded")
 
         # This copies the global commands over to your guild.
         logger.info("Syncing command tree")
@@ -88,10 +99,10 @@ class Client(commands.Bot):
     @staticmethod
     async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
-            return await interaction.response.send_message(
-                f"You are currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!", ephemeral=True)
+            return await response_after_error(interaction, f"You are currently on cooldown!")
         elif isinstance(error, app_commands.MissingPermissions):
-            return await interaction.response.send_message(f"You are not authorized to use that", ephemeral=True)
+            return await response_after_error(
+                interaction, "I don't have the required permissions to execute this command")
         else:
             logger.error(error)
-            return await interaction.response.send_message("An error occurred", ephemeral=True)
+            return await response_after_error(interaction, "An error occurred")

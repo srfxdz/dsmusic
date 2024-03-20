@@ -1,4 +1,5 @@
 import logging
+from os import getenv
 from dataclasses import dataclass, field, asdict
 from typing import Any, Literal
 
@@ -8,8 +9,9 @@ from discord import app_commands
 from discord.ext import commands
 from yarl import URL
 
-
 logger = logging.getLogger('discord.dsbot.assistant.cog')
+
+DEFAULT_MODEL = "@cf/openchat/openchat-3.5-0106"
 
 
 @dataclass
@@ -56,7 +58,7 @@ class Assistant(commands.Cog):
         self._cf_api_token = cf_api_token
 
         if rest_url is None:
-            self.rest_url = URL(f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/"),
+            self.rest_url = URL(f"https://api.cloudflare.com/client/v4/accounts/{cf_account_id}/ai/run/")
         else:
             if isinstance(rest_url, URL):
                 self.rest_url = rest_url
@@ -71,6 +73,12 @@ class Assistant(commands.Cog):
             "User-Agent": "ds-bot"
         }
         self.session.headers.update(self.headers)
+
+        if getenv("SYSTEM_PROMPT") is None:
+            self.system_message = ("You are a chatbot with the objective to help in any way necessary the user, "
+                                   "while providing only true information and keeping the answers short and concise.")
+        else:
+            self.system_message = getenv("SYSTEM_PROMPT")
 
     async def _request(
             self,
@@ -103,7 +111,7 @@ class Assistant(commands.Cog):
             prompt: str,
             raw: bool = False,
             max_tokens: int = 256,
-            *, model: str = "@cf/openchat/openchat-3.5-0106"
+            *, model: str = DEFAULT_MODEL
     ) -> Response:
         """
         Send an unscoped prompt to the llm
@@ -122,13 +130,14 @@ class Assistant(commands.Cog):
 
         url = self.rest_url / model
         response = await self._request(url, "POST", payload=data)
-        return Response(**response)
+
+        return self.parse_response(response)
 
     async def scoped_prompt(
             self,
             messages: list[Message],
             max_tokens: int = 256,
-            *, model: str = "@cf/openchat/openchat-3.5-0106"
+            *, model: str = DEFAULT_MODEL
     ):
         """
         Send a scoped prompt to the llm.
@@ -140,8 +149,7 @@ class Assistant(commands.Cog):
         """
         if messages[0].role != "system":
             messages.insert(0, Message(
-                content="You are an assistant that can speak any language the user requires. You respond to any "
-                        "question in a way that is helpful and correct.",
+                content=self.system_message,
                 role="system"
             ))
 
@@ -153,7 +161,31 @@ class Assistant(commands.Cog):
 
         url = self.rest_url / model
         response = await self._request(url, "POST", payload=payload)
-        return Response(**response)
+
+        return self.parse_response(response)
+
+    async def single_scoped_prompt(self, prompt: str, max_tokens: int = 256, model: str = DEFAULT_MODEL) -> Response:
+        """
+        Send a single prompt with system message
+        :param prompt: prompt to send
+        :param max_tokens: max number of tokens to generate
+        :param model: model to use
+        :return: the response from the llm
+        """
+        messages = [Message(content=prompt, role="user")]
+
+        return await self.scoped_prompt(messages, max_tokens, model=model)
+
+    @staticmethod
+    def parse_response(response: dict) -> Response:
+        if "error" in response:
+            raise commands.CommandError(response["error"])
+
+        if response.get("success", False) is False:
+            logger.error(response)
+            raise commands.CommandError("An error occurred")
+
+        return Response(**response["result"])
 
     @app_commands.command(name="ask", description="Ask a question to the assistant")
     @app_commands.checks.cooldown(3, 10, key=lambda i: (i.guild_id, i.user.id))
@@ -163,16 +195,18 @@ class Assistant(commands.Cog):
         # noinspection PyTypeChecker
         resp: discord.InteractionResponse = interaction.response
 
+        if model is None:
+            model = DEFAULT_MODEL
+
         await resp.defer(thinking=True)
-        llm_response = await self.unscoped_prompt(prompt, model=model)
+        llm_response = await self.single_scoped_prompt(prompt, model=model)
 
         return await interaction.followup.send(llm_response.response)
 
 
 async def setup(bot: commands.Bot) -> None:
-    from os import getenv
     client_id = getenv("CF_ACCOUNT_ID", None)
-    api_token = getenv("CF_API_TOKEN", None)
+    api_token = getenv("CF_TOKEN", None)
 
     if client_id is None or api_token is None:
         logger.warning("Cloudflare credentials not found, assistant cog will not be loaded")

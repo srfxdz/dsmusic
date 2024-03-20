@@ -49,4 +49,5 @@ If you want to install the bot with the optional requirements, you can use [poet
 
 ### Notes
 
-If you don't want to use the Cloudflare integration, just don't declare the environment variables `CF_TOKEN` and `CF_ACCOUNT_ID`.
+If you don't want to use the Cloudflare integration, just don't declare the environment variables `CF_TOKEN`
+and `CF_ACCOUNT_ID`.
