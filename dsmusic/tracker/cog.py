@@ -1,11 +1,11 @@
 import json
+import logging
 import os
 
 import discord
 from discord import app_commands
 from discord.app_commands import AppCommandChannel
 from discord.ext import commands
-
 
 logger = logging.getLogger('discord.dsbot.tracker.cog')
 

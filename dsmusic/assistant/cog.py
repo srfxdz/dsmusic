@@ -1,6 +1,6 @@
 import logging
-from os import getenv
 from dataclasses import dataclass, field, asdict
+from os import getenv
 from typing import Any, Literal
 
 import aiohttp
