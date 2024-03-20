@@ -27,6 +27,10 @@ mafic = "^2.10"
 setuptools = "^69"
 
 
+[tool.poetry.group.test.dependencies]
+flake8 = "^7.0"
+
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
