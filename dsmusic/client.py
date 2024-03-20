@@ -71,7 +71,7 @@ class Client(commands.Bot):
 
         for node_info in data:
             try:
-                with asyncio.timeout(10):
+                async with asyncio.timeout(10):
                     await self.pool.create_node(
                         host=node_info["uri"],
                         port=node_info["port"],
