@@ -11,7 +11,13 @@ This is a very simple discord bot using slash commands to play music using laval
 The preferred method to run this is with a docker container. To launch it, run the following command:
 
 ```bash
-docker run -d -e TOKEN="DISCORD_TOKEN" -e GUILD_ID="YOUR_GUILD_ID" -v $(pwd)/lavalink.json:/bot/config/lavalink.json ghcr.io/jotonedev/dsmusic:v0.3.2
+docker run -d 
+  \ -e DS_TOKEN="DISCORD_TOKEN" 
+  \ -e DS_GUILD_ID="YOUR_GUILD_ID" 
+  \ -e CF_TOKEN="CLOUDFLARE_TOKEN"
+  \ -e CF_ACCOUNT_ID="CLOUDFLARE_ACCOUNT_ID"
+  \ -v $(pwd)/lavalink.json:/bot/config/lavalink.json 
+  \ ghcr.io/jotonedev/dsmusic:latest
 ```
 
 The file lavalink.json must be created using the [template](config/lavalink.example.json) in the repository.
@@ -27,8 +33,10 @@ appropriately):
 
 ```bash
 # Add environment variables
-export TOKEN="DISCORD_TOKEN"
-export GUILD_ID="YOUR_GUILD_ID"
+export DS_TOKEN="DISCORD_TOKEN"
+export DS_GUILD_ID="YOUR_GUILD_ID"
+export CF_TOKEN="CLOUDFLARE_TOKEN"
+export CF_ACCOUNT_ID="CLOUDFLARE_ACCOUNT_ID"
 
 # Minimum requirements
 pip install --upgrade discord.py mafic
@@ -39,3 +47,11 @@ python -m dsmusic
 
 If you want to install the bot with the optional requirements, you can use [poetry](https://python-poetry.org/)
 
+### Notes
+
+If you don't want to use the Cloudflare integration, you can remove the environment variables and this line
+```python
+await self.load_extension("dsmusic.assistant.cog")
+```
+from [client.py](dsmusic/client.py) file.
+Or just use the `v0.5.9` tag, which doesn't have the Cloudflare integration.
