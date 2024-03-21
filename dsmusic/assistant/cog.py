@@ -9,9 +9,9 @@ from discord import app_commands
 from discord.ext import commands
 from yarl import URL
 
-logger = logging.getLogger('discord.dsbot.assistant.cog')
+logger = logging.getLogger('dsbot.assistant.cog')
 
-DEFAULT_MODEL = "@cf/openchat/openchat-3.5-0106"
+DEFAULT_MODEL = "@hf/thebloke/llama-2-13b-chat-awq"
 
 
 @dataclass
@@ -205,7 +205,7 @@ class Assistant(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    logger.info("Loading assistant cog")
+    logger.debug("Loading assistant cog")
     client_id = getenv("CF_ACCOUNT_ID", None)
     api_token = getenv("CF_TOKEN", None)
 

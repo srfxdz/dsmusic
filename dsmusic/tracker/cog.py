@@ -7,7 +7,7 @@ from discord import app_commands
 from discord.app_commands import AppCommandChannel
 from discord.ext import commands
 
-logger = logging.getLogger('discord.dsbot.tracker.cog')
+logger = logging.getLogger('dsbot.tracker.cog')
 
 
 @app_commands.guild_only()
@@ -73,6 +73,6 @@ class Tracker(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    logger.info("Loading tracker cog")
+    logger.debug("Loading tracker cog")
     await bot.add_cog(Tracker(bot))
     logger.info("Tracker cog loaded")

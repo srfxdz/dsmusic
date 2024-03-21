@@ -5,11 +5,11 @@ import discord
 import mafic
 from discord import app_commands
 from discord.channel import VocalGuildChannel
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from .player import LavalinkPlayer
 
-logger = logging.getLogger('discord.dsbot.music.cog')
+logger = logging.getLogger('dsbot.music.cog')
 
 
 @app_commands.guild_only()
@@ -89,7 +89,7 @@ class Music(commands.Cog):
                 vc: LavalinkPlayer = interaction.guild.voice_client
 
         try:
-            with asyncio.timeout(10):
+            async with asyncio.timeout(10):
                 tracks = await vc.fetch_tracks(query)
         except asyncio.TimeoutError:
             return await interaction.followup.send("⚠️ Timed out (please, report to the bot owner)", ephemeral=True)
@@ -220,6 +220,6 @@ class Music(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    logger.info("Loading music cog")
+    logger.debug("Loading music cog")
     await bot.add_cog(Music(bot))
     logger.info("Music cog loaded")
