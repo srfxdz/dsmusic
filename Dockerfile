@@ -39,7 +39,7 @@ ENV DS_GUILD_ID  "YOUR_GUILD_ID"          # the guild id where the bot will be u
 #ENV CF_TOKEN     "YOUR_CLOUDFLARE_TOKEN"  # cloudflare token
 
 # Copy project dependecies
-COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 
 # Change workdir
 WORKDIR /bot
