@@ -31,7 +31,7 @@ FROM python:3.12-slim
 ENV PYTHONFAULTHANDLER=1 \
       PYTHONUNBUFFERED=1 \
       PYTHONHASHSEED=random \
-      PYTHONDONTWRITEBYTECODE=1 \
+      PYTHONDONTWRITEBYTECODE=1
 
 ENV DS_TOKEN     "YOUR_DISCORD_TOKEN"     # discord token from the developer portal
 ENV DS_GUILD_ID  "YOUR_GUILD_ID"          # the guild id where the bot will be used
