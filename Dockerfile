@@ -1,4 +1,4 @@
-FROM python:3.12-bookworm as builder
+FROM python:3.12 as builder
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1 \
 # Change workdir
 WORKDIR /build
 
-# Install powrt
+# Install poetry
 RUN pip install poetry
 
 # Add poetry files
@@ -23,22 +23,23 @@ RUN mkdir -p /build/wheels && poetry export -f requirements.txt --output /build/
 # Compile dependencies
 WORKDIR /build/wheels
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /build/wheels -r /build/wheels/requirements.txt
+# Install dependecies
+RUN pip install --find-links /build/wheels -r /build/wheels/requirements.txt
 
-FROM python:3.12-slim-bookworm
+FROM python:3.12-slim
 
 ENV PYTHONFAULTHANDLER=1 \
       PYTHONUNBUFFERED=1 \
       PYTHONHASHSEED=random \
       PYTHONDONTWRITEBYTECODE=1 \
-      # pip
-      PIP_NO_CACHE_DIR=1 \
-      PIP_DISABLE_PIP_VERSION_CHECK=1 \
-      PIP_DEFAULT_TIMEOUT=100
 
 ENV DS_TOKEN     "YOUR_DISCORD_TOKEN"     # discord token from the developer portal
 ENV DS_GUILD_ID  "YOUR_GUILD_ID"          # the guild id where the bot will be used
 #ENV CF_CLIENT_ID "YOUR_CLIENT_ID"         # cloudflare client id
 #ENV CF_TOKEN     "YOUR_CLOUDFLARE_TOKEN"  # cloudflare token
+
+# Copy project dependecies
+COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
 
 # Change workdir
 WORKDIR /bot
@@ -49,12 +50,6 @@ RUN groupadd -r bot && useradd -d /bot -r -g bot bot \
 
 # Run as non-root user
 USER bot
-
-# Copy wheels
-COPY --from=builder /build/wheels /bot/wheels
-
-# install project dependecies
-RUN pip install --find-links /bot/wheels -r /bot/wheels/requirements.txt
 
 # Copy project
 COPY --chown=bot:bot dsmusic/ /bot/dsmusic/
