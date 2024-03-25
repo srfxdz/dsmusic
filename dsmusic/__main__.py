@@ -30,7 +30,6 @@ def setup_discord_auxiliary_objects():
         connect=True,
         speak=True,
         use_voice_activation=True,
-        use_soundboard=True,
 
         manage_threads=True,
         send_messages_in_threads=True,
