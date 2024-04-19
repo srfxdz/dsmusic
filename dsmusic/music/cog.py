@@ -44,8 +44,7 @@ class Music(commands.Cog):
                 vc: LavalinkPlayer = mb.guild.voice_client
                 if vc is not None:
                     vc.clean_queue()
-                    await vc.disconnect(force=True)
-                    del vc
+                    await vc.disconnect()
                 else:
                     return
 
