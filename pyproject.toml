@@ -28,7 +28,7 @@ setuptools = "^70"
 
 
 [tool.poetry.group.test.dependencies]
-flake8 = "^7.0"
+flake8 = "^7.1"
 
 
 [build-system]
