@@ -79,7 +79,14 @@ class Music(commands.Cog):
 
         if interaction.guild.voice_client is None:
             vc: LavalinkPlayer = await interaction.user.voice.channel.connect(self_deaf=True, cls=LavalinkPlayer)
-            vc.is_connected()
+            # wait for the bot to connect, so wait for vc.is_connected() to be True
+            try:
+                async with asyncio.timeout(6):
+                    while not vc.is_connected():
+                        await asyncio.sleep(0.1)
+            except asyncio.TimeoutError:
+                logger.error("Timeout in play")
+                return await resp.send_message("⚠️ Timed out on connection", ephemeral=True)
         else:
             if interaction.guild.voice_client.channel != interaction.user.voice.channel:
                 return await interaction.followup.send("⚠️ Already on a different channel", ephemeral=True)
@@ -91,18 +98,31 @@ class Music(commands.Cog):
             async with asyncio.timeout(10):
                 tracks = await vc.fetch_tracks(query)
         except asyncio.TimeoutError:
-            return await interaction.followup.send("⚠️ Timed out (please, report to the bot owner)", ephemeral=True)
+            logger.error("Timeout in fetch_tracks")
+            return await interaction.followup.send("⚠️ Timed out on track fetch", ephemeral=True)
+        except Exception as e:
+            logger.error(f"Error in fetch_tracks: {e}")
+            return await interaction.followup.send("⚠️ An error occurred", ephemeral=True)
 
-        if tracks is None:
+        if tracks is None or (isinstance(tracks, list) and len(tracks) == 0):
             return await interaction.followup.send("⚠️ No song found", ephemeral=True)
         else:
-            embed = vc.queue.add(tracks)
+            try:
+                embed = vc.queue.add(tracks)
+            except Exception as e:
+                logger.error(f"Error in queue.add: {e}")
+                return await interaction.followup.send("⚠️ An error occurred", ephemeral=True)
+
             if embed is None:
                 return await interaction.followup.send("⚠️ Could not add the song to the queue", ephemeral=True)
             await interaction.followup.send("✅ Added to the queue", embed=embed)
 
         if vc.current is None or (vc.current is not None and vc.paused is True):
-            await vc.play(vc.queue.next(), replace=True)
+            try:
+                await vc.play(vc.queue.next(), replace=True)
+            except Exception as e:
+                logger.error(f"Error in play: {e}")
+                return await interaction.followup.send("⚠️ An error occurred", ephemeral=True)
 
     @app_commands.command(name="repeat", description="Repeat the same song")
     async def repeat(self, interaction: discord.Interaction):

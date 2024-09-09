@@ -138,7 +138,7 @@ class Queue:
         Add a playlist or a single track to the queue
 
         :param data: A playlist or a single track
-        :return: an Embed for the added object
+        :return: an Embed for the added object or None if the object was not added
         """
         if isinstance(data, Track):
             if self._add_to_queue(track=data) == 1:
@@ -155,6 +155,8 @@ class Queue:
                     break
             embed = playlist_embed(data).add_field(name="Number of videos", value=added)
         elif isinstance(data, list):
+            if len(data) == 0:
+                return None
             return self.add(data[0])
         else:
             return None
