@@ -1,3 +1,4 @@
+import logging
 from random import randint
 from typing import Optional
 
@@ -7,6 +8,9 @@ from mafic import Track, Playlist
 __all__ = [
     "Queue"
 ]
+
+
+logger = logging.getLogger('dsbot.music.queue')
 
 
 def playlist_embed(result: Playlist) -> discord.Embed:
@@ -163,25 +167,30 @@ class Queue:
         :return: a Track object
         """
         if len(self._queue) == 0:
-            _current = None
+            self._current = None
             return None
 
         if self._loop_current:
             return self._current
 
         if self._shuffle:
-            index = randint(0, len(self._queue))
+            index = randint(0, len(self._queue)) % len(self._queue)
         else:
             index = 0
 
-        track = self._queue.pop(index)
+        try:
+            track = self._queue.pop(index)
+        except IndexError:
+            logger.error(f"IndexError in Queue.next, queue length: {len(self._queue)}, index: {index}")
+            self._current = None
+            return None
 
         if self._loop_queue:
             self._queue.append(track)
         else:
             self._queue_length -= track.length
 
-        _current = Track
+        self._current = track
         return track
 
     def clean(self) -> int:

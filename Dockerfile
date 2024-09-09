@@ -35,8 +35,6 @@ ENV PYTHONFAULTHANDLER=1 \
 
 ENV DS_TOKEN     "YOUR_DISCORD_TOKEN"     # discord token from the developer portal
 ENV DS_GUILD_ID  "YOUR_GUILD_ID"          # the guild id where the bot will be used
-#ENV CF_CLIENT_ID "YOUR_CLIENT_ID"         # cloudflare client id
-#ENV CF_TOKEN     "YOUR_CLOUDFLARE_TOKEN"  # cloudflare token
 
 # Copy project dependecies
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages

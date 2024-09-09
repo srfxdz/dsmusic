@@ -1,5 +1,7 @@
+import asyncio
 import os
 import logging
+import sys
 
 import discord
 
@@ -55,6 +57,10 @@ def setup_logging():
 
 def main():
     setup_logging()
+
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     intents, permissions = setup_discord_auxiliary_objects()
 
     client = Client(

@@ -37,7 +37,6 @@ class Client(commands.Bot):
 
         # Load config from env vars
         self.tracker_enabled = int(getenv("ENABLE_TRACKER", "1")) == 1
-        self.assistant_enabled = int(getenv("ENABLE_ASSISTANT", "1")) == 1
         self.music_enabled = int(getenv("ENABLE_MUSIC", "1")) == 1
 
     async def setup_hook(self):
@@ -45,9 +44,6 @@ class Client(commands.Bot):
 
         if self.tracker_enabled:
             await self.load_extension("dsmusic.tracker.cog")
-
-        if self.assistant_enabled:
-            await self.load_extension("dsmusic.assistant.cog")
 
         if self.music_enabled:
             await self.load_extension("dsmusic.music.cog")
